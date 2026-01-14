@@ -47,6 +47,8 @@
     {% else %}
       <a href="{{ url_for('login') }}">Login</a>
     {% endif %}
+
+    <a href="{{ url_for('help_page') }}">Aide</a>
   </nav>
 
   {% with messages = get_flashed_messages(with_categories=true) %}

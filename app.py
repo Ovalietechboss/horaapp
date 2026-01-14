@@ -113,6 +113,14 @@ def create_app():
     @app.get("/health")
     def health():
          return {"status": "ok"}
+    
+    # --- aide
+
+    @app.get("/help")
+    @login_required
+    def help_page():
+        return render_template("help.html")
+
 
 
     # --- Role decorator
