@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Rapport</h1>
+
+  <div class="card">
+    <form method="get" action="{{ url_for('report') }}">
+      <div class="row">
+        <div>
+          <label>Entreprise</label>
+          <select name="company_id">
+            <option value="">-- toutes --</option>
+            {% for c in companies %}
+              <option value="{{ c.id }}" {% if filters.company_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Projet</label>
+          <select name="project_id">
+            <option value="">-- tous --</option>
+            {% for p in projects %}
+              <option value="{{ p.id }}" {% if filters.project_id == p.id %}selected{% endif %}>
+                {{ p.company.name }} — {{ p.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Date début</label>
+          <input type="date" name="date_from" value="{{ filters.date_from }}">
+        </div>
+        <div>
+          <label>Date fin</label>
+          <input type="date" name="date_to" value="{{ filters.date_to }}">
+        </div>
+        <div style="align-self:end">
+          <button class="btn" type="submit">Filtrer</button>
+          <a class="btn" href="{{ url_for('report') }}">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    <div style="margin-top:10px;">
+      <a class="btn" href="{{ url_for('export_csv', **filters) }}">Exporter CSV</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Total heures : {{ "%.2f"|format(total_hours) }}</h2>
+    {% if per_project %}
+      <h3>Totaux par projet</h3>
+      <table>
+        <thead><tr><th>Projet</th><th>Heures</th></tr></thead>
+        <tbody>
+          {% for name, h in per_project %}
+            <tr><td>{{ name }}</td><td>{{ "%.2f"|format(h) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="muted">Aucune donnée.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Détails</h2>
+    {% if entries %}
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Entreprise</th><th>Projet</th><th>Heures</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          {% for e in entries %}
+            <tr>
+              <td>{{ e.work_date }}</td>
+              <td>{{ e.company.name }}</td>
+              <td>{{ e.project.name }}</td>
+              <td>{{ "%.2f"|format(e.hours) }}</td>
+              <td>{{ e.description or "" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="muted">Aucune saisie.</div>
+    {% endif %}
+  </div>
+{% endblock %}

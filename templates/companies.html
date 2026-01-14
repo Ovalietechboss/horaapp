@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Entreprises</h1>
+
+  <div class="card">
+    <form method="post" action="{{ url_for('companies_create') }}">
+      <div class="row">
+        <div>
+          <label>Nom entreprise</label>
+          <input name="name" placeholder="Ex: Consulting / Boutique..." required />
+        </div>
+        <div style="align-self:end">
+          <button class="btn" type="submit">Ajouter</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Liste</h2>
+    <table>
+      <thead><tr><th>Nom</th><th></th></tr></thead>
+      <tbody>
+        {% for c in companies %}
+          <tr>
+            <td>{{ c.name }}</td>
+            <td>
+              <form method="post" action="{{ url_for('companies_delete', company_id=c.id) }}"
+                    onsubmit="return confirm('Supprimer entreprise + projets + saisies ?');">
+                <button class="btn btn-danger" type="submit">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

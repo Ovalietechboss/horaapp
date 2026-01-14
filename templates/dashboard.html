@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .legend-dot{
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    margin-right:8px;
+    vertical-align:middle;
+    background:#ccc; /* fallback */
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.04);
+  }
+</style>
+
+<h1>Dashboard</h1>
+
+<!-- STATS -->
+<div class="card">
+  <div class="row">
+    <div>
+      <div class="muted">Total heures (tout)</div>
+      <div style="font-size:22px;">
+        <strong>{{ "%.2f"|format(total_all) }}</strong>
+      </div><td>{{ name }}</td>
+    </div>
+
+    <div>
+      <div class="muted">Total heures (mois en cours)</div>
+      <div style="font-size:22px;">
+        <strong>{{ "%.2f"|format(total_month) }}</strong>
+      </div>
+    </div>
+
+    <div>
+      <div class="muted">Action rapide</div>
+      <a class="btn" href="{{ url_for('entry_new') }}">+ Ajouter une saisie</a>
+    </div>
+  </div>
+</div>
+
+<!-- GRAPH + TABLE -->
+<div class="row">
+  <div class="card" style="flex:1.2; min-width:320px;">
+    <h2>Répartition des heures par entreprise</h2>
+
+    {% if values and (values|sum) > 0 %}
+      <div style="max-width:520px; margin:0 auto;">
+        <canvas id="companyChart"></canvas>
+      </div>
+      <div class="muted" style="margin-top:8px;">
+        Survole le graphique pour voir les détails
+      </div>
+    {% else %}
+      <div class="muted">Pas encore de données.</div>
+    {% endif %}
+  </div>
+
+  <div class="card" style="flex:1; min-width:320px;">
+    <h2>Heures par entreprise</h2>
+
+    {% if per_company %}
+      <table>
+        <thead>
+          <tr>
+            <th>Entreprise</th>
+            <th>Heures</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for name, h in per_company %}
+            <tr>
+              <td>
+  <span class="legend-dot" data-label="{{ name }}"></span>
+  {{ name }}
+</td>
+
+              <td>{{ "%.2f"|format(h or 0) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="muted">Aucune donnée.</div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- LAST ENTRIES -->
+<div class="card">
+  <h2>Dernières saisies</h2>
+
+  {% if last_entries %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Entreprise</th>
+          <th>Projet</th>
+          <th>Heures</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in last_entries %}
+          <tr>
+            <td>{{ e.work_date }}</td>
+            <td>{{ e.company.name }}</td>
+            <td>{{ e.project.name }}</td>
+            <td>{{ "%.2f"|format(e.hours) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="muted">Aucune saisie.</div>
+  {% endif %}
+</div>
+
+<!-- CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+(function () {
+  const labelsData = {{ labels|tojson|safe }};
+  const valuesData = {{ values|tojson|safe }};
+
+  if (!labelsData || !valuesData) return;
+  if (valuesData.length === 0) return;
+
+  const total = valuesData.reduce((a, b) => a + b, 0);
+  if (total <= 0) return;
+
+  const canvas = document.getElementById("companyChart");
+  if (!canvas) return;
+
+  const colors = [
+    "#4F46E5", "#06B6D4", "#22C55E", "#F59E0B",
+    "#EF4444", "#A855F7", "#14B8A6", "#F97316"
+  ];
+
+  new Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: labelsData,
+      datasets: [{
+        data: valuesData,
+        backgroundColor: labelsData.map((_, i) => colors[i % colors.length]),
+        borderColor: "#ffffff",
+        borderWidth: 2,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const value = context.parsed;
+              const pct = ((value / total) * 100).toFixed(1);
+              return ` ${context.label}: ${value.toFixed(2)} h (${pct}%)`;
+            }
+          }
+        }
+      },
+      cutout: "60%"
+    }
+  });
+})();
+</script>
+{% endblock %}

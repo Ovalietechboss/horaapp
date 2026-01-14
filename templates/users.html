@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Utilisateurs</h1>
+
+  <div class="card">
+    <h2>Créer un utilisateur</h2>
+    <form method="post" action="{{ url_for('users_create') }}">
+      <div class="row">
+        <div>
+          <label>Username</label>
+          <input name="username" required />
+        </div>
+
+        <div>
+          <label>Email</label>
+          <input type="email" name="email" required placeholder="ex: user@email.com" />
+        </div>
+
+        <div>
+          <label>Mot de passe</label>
+          <input type="password" name="password" required />
+        </div>
+
+        <div>
+          <label>Rôle</label>
+          <select name="role" required>
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button class="btn" type="submit">Créer</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Liste</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Actif</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            <td>{{ "oui" if u.active else "non" }}</td>
+            <td>
+              <form method="post" action="{{ url_for('users_toggle', user_id=u.id) }}">
+                <button class="btn" type="submit">
+                  {% if u.active %}Désactiver{% else %}Activer{% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p class="muted">Note : l’utilisateur "admin" ne peut pas être désactivé.</p>
+  </div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Projets</h1>
+
+  <div class="card">
+    <form method="post" action="{{ url_for('projects_create') }}">
+      <div class="row">
+        <div>
+          <label>Entreprise</label>
+          <select name="company_id" required>
+            <option value="">-- choisir --</option>
+            {% for c in companies %}
+              <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Nom projet</label>
+          <input name="name" required placeholder="Ex: Site vitrine, Client X, Audit..." />
+        </div>
+        <div style="align-self:end">
+          <button class="btn" type="submit">Ajouter</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Liste</h2>
+    <table>
+      <thead><tr><th>Entreprise</th><th>Projet</th><th></th></tr></thead>
+      <tbody>
+        {% for p in projects %}
+          <tr>
+            <td>{{ p.company.name }}</td>
+            <td>{{ p.name }}</td>
+            <td>
+              <form method="post" action="{{ url_for('projects_delete', project_id=p.id) }}"
+                    onsubmit="return confirm('Supprimer projet + ses saisies ?');">
+                <button class="btn btn-danger" type="submit">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Connexion</h1>
+  <div class="card">
+    <form method="post" action="{{ url_for('login_post') }}">
+      <div class="row">
+        <div>
+          <label>Utilisateur</label>
+          <input name="username" required />
+        </div>
+        <div>
+          <label>Mot de passe</label>
+          <input type="password" name="password" required />
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="btn" type="submit">Se connecter</button>
+      </div>
+      <p style="margin-top:10px;">
+  <a href="{{ url_for('forgot_password') }}">Mot de passe oublié ?</a>
+</p>
+
+      <p class="muted">Admin par défaut : admin / admin123 (à changer après)</p>
+    </form>
+  </div>
+{% endblock %}

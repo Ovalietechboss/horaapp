@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suivi Heures</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; }
+    nav a { margin-right: 12px; }
+    .card { border: 1px solid #ddd; padding: 16px; border-radius: 10px; margin: 14px 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 220px; }
+    .ok { color: #0a7; }
+    .error { color: #c00; }
+    .btn { padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; background: #f7f7f7; cursor: pointer; }
+    .btn-danger { border-color: #f2b; }
+    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+    textarea { min-height: 80px; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <nav>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('entry_new') }}">Nouvelle saisie</a>
+      <a href="{{ url_for('report') }}">Rapport</a>
+      <a href="{{ url_for('change_password') }}">Changer mot de passe</a>
+
+
+      {% if current_user.role == "admin" %}
+        <a href="{{ url_for('entries_list') }}">Saisies (admin)</a>
+        <a href="{{ url_for('companies_list') }}">Entreprises</a>
+        <a href="{{ url_for('projects_list') }}">Projets</a>
+        <a href="{{ url_for('users_list') }}">Utilisateurs</a>
+      {% endif %}
+
+      <span class="muted" style="margin-left:12px;">
+        Connecté : <strong>{{ current_user.username }}</strong> ({{ current_user.role }})
+      </span>
+
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline;margin-left:12px;">
+        <button class="btn" type="submit">Logout</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="card">
+        {% for cat, msg in messages %}
+          <div class="{{cat}}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</body>
+</html>
